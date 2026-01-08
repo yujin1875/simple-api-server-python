@@ -1,0 +1,158 @@
+{
+	"info": {
+		"_postman_id": "f4ef1537-7f8c-4844-8d15-1ddf8937805b",
+		"name": "noopy-collection",
+		"description": "소개글 쓸 수 있음",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51301239",
+		"_collection_link": "https://yujin1875-3561820.postman.co/workspace/%EC%96%91%EC%9C%A0%EC%A7%84's-Workspace~bd6da751-8fa0-4b21-83f2-7b630b044110/collection/51301239-f4ef1537-7f8c-4844-8d15-1ddf8937805b?action=share&source=collection_link&creator=51301239"
+	},
+	"item": [
+		{
+			"name": "유저정보전부가져오기",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4444/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4444",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "변수사용하기",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/users",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getposts",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "게시글-가져오기",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts/1",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"pm.test(\"응답 데이터가 iterationData와 완전히 일치한다\", function () {\r",
+					"\r",
+					"  // 1️⃣ 서버 응답 Body를 JSON 객체로 파싱\r",
+					"  // GET /posts/1 이므로 배열이 아니라 객체임\r",
+					"  const responseData = pm.response.json();\r",
+					"\r",
+					"  // 2️⃣ Collection Runner에 업로드한 JSON 파일에서\r",
+					"  // 현재 iteration의 값들을 가져옴\r",
+					"  //\r",
+					"  // iterationData는 \"한 row\" 기준이라\r",
+					"  // 배열이 아닌 객체 형태로 접근함\r",
+					"  const expectedData = {\r",
+					"    userId: pm.iterationData.get(\"userId\"),\r",
+					"    id: pm.iterationData.get(\"id\"),\r",
+					"    title: pm.iterationData.get(\"title\"),\r",
+					"    body: pm.iterationData.get(\"body\")\r",
+					"  };\r",
+					"\r",
+					"  // 3️⃣ 응답 데이터와 iterationData를 깊은 비교(eql)\r",
+					"  // 값 + 타입까지 전부 동일해야 통과\r",
+					"  pm.expect(responseData).to.eql(expectedData);\r",
+					"});"
+				]
+			}
+		}
+	]
+}
