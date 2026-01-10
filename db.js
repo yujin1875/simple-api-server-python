@@ -1,11 +1,11 @@
 import mysql from 'mysql2/promise';
 
 export const db = await mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '1234',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '1234',
   port: 3306,
-  database: 'noop', // 실제 DB명
+  database: process.env.DB_NAME || 'noop',
   waitForConnections: true,
   connectionLimit: 10,
 });
