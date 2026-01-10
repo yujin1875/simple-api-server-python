@@ -1,18 +1,19 @@
-name: API Test Automation
+name: API Test with DB
 
 on:
-  push:   # 모든 브랜치에서 push 시 실행
+  push:
+    branches: [ "master" ]
 
 jobs:
-  api-test:
+  test:
     runs-on: ubuntu-latest
 
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: diddbwls22!
-          MYSQL_DATABASE: noop
+          MYSQL_ROOT_PASSWORD: 1234
+          MYSQL_DATABASE: noop_test
         ports:
           - 3306:3306
         options: >-
@@ -22,31 +23,47 @@ jobs:
           --health-retries=5
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install Node dependencies
-        run: npm install
-
-      - name: Start API Server
-        run: |
-          node server.js &
-          sleep 5
-
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: 3.11
+
+      - name: Install Node dependencies
+        run: npm install
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Pytest
+      - name: Wait for MySQL
+        run: |
+          for i in {1..10}; do
+            mysql -h 127.0.0.1 -u root -p1234 -e "SELECT 1" noop_test && break
+            sleep 3
+          done
+
+      - name: Init test DB
+        run: |
+          mysql -h 127.0.0.1 -u root -p1234 noop_test < init.sql
+
+      - name: Start Node server
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: 1234
+          DB_NAME: noop_test
+        run: |
+          node server.js &
+          sleep 5
+
+      - name: Run pytest
         run: pytest -v
